@@ -1,10 +1,10 @@
 # STATUS — claude-plugins
 
-**一句话状态**：harness-kit plugin S1-S5 全部 passing（3 skills + 1 agent + 1 command + 1 hook 全 verify 过），S6 marketplace 发布进行中。
+**一句话状态**：M1 全部 passing（S1-S6）——harness-kit v0.1.1 已发布到 github.com/libaoming/claude-plugins，从 marketplace 安装的 cache 副本 verify 通过，用户级 harness-init skill 已归档（plugin 版接管，调用名变为 `/harness-kit:harness-init`）。
 
 **下次入口**：
-1. S6 收尾：GitHub 安装验证 → 归档 `~/.claude/skills/harness-init` → version bump 走 update 流
-2. S7（可选）：把各切片「学到的机制」整理成橙研所拆解文章
+1. S7（可选）：把各切片「学到的机制」整理成橙研所拆解文章（素材：features.json 的 verify_notes + 本文件踩坑清单）
+2. 后续迭代：改 plugin 源码 → bump version → push → `claude plugin update harness-kit@libaoming`（本地试验用 `--plugin-dir`）
 
 **踩坑清单**：
 - plugin 内不能引用 plugin 外路径（marketplace 安装只复制 plugin 目录）——templates 必须随 skill 走；同 plugin 内跨 skill 相对引用（`../`）安全
