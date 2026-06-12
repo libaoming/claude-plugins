@@ -1,0 +1,30 @@
+{
+  "$schema_version": "0.1",
+  "milestone": "{{MILESTONE}}",
+  "project": "{{PROJECT}}",
+  "updated": "{{DATE}}",
+  "owner": "{{OWNER}}",
+  "convention": {
+    "status": ["pending", "in_progress", "failing", "passing"],
+    "default_status": "failing",
+    "rule": "verify 必须真正通过才能改 passing；单测通过只到 in_progress",
+    "verifier_gate": "verify 字段为空 = 不准开工（不能离开 pending）。每个目标必须带可衡量的成功信号（fixture/测试/基准/可复现 bug/E2E）——没有验证机制的目标只是许愿。",
+    "context_fields": "每个 feature 必须填 related/affected/out_of_scope，让 subagent 秒判'读哪些、不读哪些'，对治 context 膨胀（来自 OpenSpec Related Context 实践）"
+  },
+  "slices": {
+    "S1": {"name": "（待拆）", "exit_criteria": "（可验证的退出标准）", "git_tag": "{{PROJECT}}-s1"}
+  },
+  "features": [
+    {
+      "id": "F01_example",
+      "slice": "S1",
+      "status": "pending",
+      "verify": {"type": "fixture", "path": "fixtures/example/"},
+      "verify_notes": "",
+      "related": {"specs": [], "code": [], "docs": []},
+      "affected": "（这个 feature 影响哪些行为）",
+      "out_of_scope": "（明确不碰什么，防 AI 复刻隐性功能）",
+      "blocking": []
+    }
+  ]
+}

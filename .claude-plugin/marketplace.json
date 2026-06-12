@@ -1,0 +1,18 @@
+{
+  "name": "libaoming",
+  "description": "橙研所的 Claude Code plugins：长程 agent 项目工程方法论及周边工具",
+  "owner": {
+    "name": "baomingli (橙研所)",
+    "url": "https://github.com/libaoming"
+  },
+  "plugins": [
+    {
+      "name": "harness-kit",
+      "source": "./plugins/harness-kit",
+      "description": "Engineering harness for long-running agent projects: scaffolding with 4-layer defense, runtime memory kit, prompt auto-evolution.",
+      "category": "productivity",
+      "tags": ["scaffolding", "harness", "agent-memory", "autoevolve"],
+      "license": "MIT"
+    }
+  ]
+}

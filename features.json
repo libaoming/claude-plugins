@@ -1,0 +1,28 @@
+{
+  "$schema_version": "0.1",
+  "milestone": "M1",
+  "project": "claude-plugins",
+  "updated": "2026-06-13",
+  "owner": "libaoming",
+  "convention": {
+    "status": ["pending", "in_progress", "failing", "passing"],
+    "default_status": "failing",
+    "rule": "verify 必须真正通过才能改 passing；单测通过只到 in_progress"
+  },
+  "slices": {
+    "S1": {"name": "plugin 骨架", "exit_criteria": "claude plugin validate --strict 通过", "git_tag": "claude-plugins-s1"},
+    "S2": {"name": "迁移 harness-init", "exit_criteria": "--plugin-dir 下 skill 可见 + 临时目录 scaffold 端到端跑通", "git_tag": "claude-plugins-s2"},
+    "S3": {"name": "agent-memory-kit + autoevolve skill", "exit_criteria": "三 skill 可见且 description 触发匹配正确", "git_tag": "claude-plugins-s3"},
+    "S4": {"name": "SessionStart 进度注入 hook", "exit_criteria": "脱机四 case 通过 + 真实会话注入可见，<100ms", "git_tag": "claude-plugins-s4"},
+    "S5": {"name": "auditor agent + status command", "exit_criteria": "/agents 可见 + 真实审计/速查跑通", "git_tag": "claude-plugins-s5"},
+    "S6": {"name": "marketplace 发布", "exit_criteria": "从 GitHub 安装的 cache 副本可用 + 用户级 skill 归档 + version bump 更新流通过", "git_tag": "claude-plugins-s6"}
+  },
+  "features": [
+    {"id": "F01_plugin_manifest", "slice": "S1", "status": "passing", "verify": {"type": "command", "path": "claude plugin validate ./plugins/harness-kit --strict"}, "verify_notes": "2026-06-13 validate 通过", "related": {"specs": [], "code": ["plugins/harness-kit/.claude-plugin/plugin.json"], "docs": []}, "affected": "plugin 可被加载", "out_of_scope": "不用 commands/agents 显式数组，走目录约定", "blocking": []},
+    {"id": "F02_harness_init_skill", "slice": "S2", "status": "passing", "verify": {"type": "e2e", "path": "headless scaffold /tmp/harness-demo"}, "verify_notes": "2026-06-13 13文件全生成、占位符替换正确、hook 路径项目内、无 {{}} 残留", "related": {"specs": [], "code": ["plugins/harness-kit/skills/harness-init/"], "docs": []}, "affected": "/harness-kit:harness-init 全流程", "out_of_scope": "context-engineering-kit 不内置", "blocking": []},
+    {"id": "F03_amk_autoevolve_skills", "slice": "S3", "status": "passing", "verify": {"type": "e2e", "path": "headless skill 列表 + 触发匹配问答"}, "verify_notes": "2026-06-13 三 skill 可见，'挂自动进化环'正确匹配 autoevolve；evolve 模板同 plugin 单一份", "related": {"specs": [], "code": ["plugins/harness-kit/skills/agent-memory-kit/", "plugins/harness-kit/skills/autoevolve/"], "docs": []}, "affected": "记忆层/进化环挂载", "out_of_scope": "不复制 examples/ 进 plugin，引用 GitHub", "blocking": []},
+    {"id": "F04_session_hook", "slice": "S4", "status": "passing", "verify": {"type": "e2e", "path": "脱机 echo JSON 四 case + /tmp/harness-demo 真实会话注入"}, "verify_notes": "2026-06-13 注入正确、29ms、坏输入全静默 exit 0", "related": {"specs": [], "code": ["plugins/harness-kit/hooks/"], "docs": []}, "affected": "所有会话的 SessionStart", "out_of_scope": "不做 Stop/Notification hook", "blocking": []},
+    {"id": "F05_auditor_and_status", "slice": "S5", "status": "passing", "verify": {"type": "e2e", "path": "headless 审计 /tmp/harness-demo + status 速查"}, "verify_notes": "2026-06-13 agent 注册为 harness-kit:harness-auditor，status 命令逻辑输出正确", "related": {"specs": [], "code": ["plugins/harness-kit/agents/harness-auditor.md", "plugins/harness-kit/commands/status.md"], "docs": []}, "affected": "审计与速查入口", "out_of_scope": "auditor 绝对只读", "blocking": []},
+    {"id": "F06_marketplace_publish", "slice": "S6", "status": "in_progress", "verify": {"type": "e2e", "path": "claude plugin install harness-kit@libaoming 后 cache 副本 scaffold 可用 + update 流"}, "verify_notes": "", "related": {"specs": [], "code": [".claude-plugin/marketplace.json"], "docs": ["README.md"]}, "affected": "公开安装通道", "out_of_scope": "不提交官方 marketplace", "blocking": []}
+  ]
+}
