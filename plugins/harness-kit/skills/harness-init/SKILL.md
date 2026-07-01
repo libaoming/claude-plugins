@@ -12,7 +12,7 @@ description: 项目初始化的唯一入口（替代单独跑 /init）。用 har
 | 层 | 内容 | 落地物 |
 |---|---|---|
 | **L1 持久化层** | 业务语义/规则/进度从 LLM 记忆迁到文件 | `CLAUDE.md` + `STATUS.md` + Auto Memory |
-| **L2 方法论层** | 单一事实源 + 可验证 + 线性推进 | `features.json` + `M1/` 三件套 + fixture 先于代码 + verify 纪律 |
+| **L2 方法论层** | 单一事实源 + 可验证 + 线性推进 | `features.json` + `M1/` 三件套 + fixture 先于代码 + **技术方案先于开发（`docs/proposals/` 待评估，用户评估通过才开发）** + verify 纪律 |
 | **L3 自动化钩子层** | 确定性自动化（按需） | Hooks（session 注入 / 同步 / 格式化），项目级 `.claude/settings.json` |
 | **L4 上下文隔离层** | 脏活派子 agent，只回结论，主 context 干净 | CLAUDE.md「上下文隔离纪律」段 + `.claude/agents/{proj}-ops.md` 只读运维子 agent |
 
@@ -65,8 +65,9 @@ description: 项目初始化的唯一入口（替代单独跑 /init）。用 har
 | `templates/M1_PROGRESS.md` | `{dir}/{MILESTONE}/PROGRESS.md` | L2 |
 | `templates/fixtures_README.md` | `{dir}/fixtures/README.md` | L2 |
 | `templates/agent_ops.md` | `{dir}/.claude/agents/{PROJECT}-ops.md` | L4（项目专属只读运维子 agent；用户选要才建） |
-| `templates/settings.local.json` | `{dir}/.claude/settings.local.json` | L3（Stop 增量追加 hook：每轮把用户请求追加到进度文件「增量流水」区，扛关电脑；local 不入 git） |
-| `templates/hooks/stop-progress-append.sh` | `{dir}/.claude/hooks/stop-progress-append.sh`（`chmod +x`） | L3（上面 hook 指向的脚本本体，随项目走，不依赖任何全局路径） |
+| `templates/settings.local.json` | `{dir}/.claude/settings.local.json` | L3（注册**一对 Stop hook**：①增量追加进度 ②防造假收口闸；local 不入 git） |
+| `templates/hooks/stop-progress-append.sh` | `{dir}/.claude/hooks/stop-progress-append.sh`（`chmod +x`） | L3（hook①脚本本体：每轮把用户请求追加到进度文件「增量流水」区，扛关电脑，随项目走不依赖全局路径） |
+| `templates/hooks/stop-verify-claims.py` | `{dir}/.claude/hooks/stop-verify-claims.py`（`chmod +x`） | L3（hook②脚本本体：防造假收口闸，末轮"已写/File created + 文件名"或交付表 `path`（N 行）逐一 `test -f`，缺失则 exit 2 拒绝收口喂回缺失清单；缺 python3 自动降级 no-op） |
 
 ### 第 1b 步 · 按需挂载 memory / context kit（仅当 0b 选了对应开关）
 

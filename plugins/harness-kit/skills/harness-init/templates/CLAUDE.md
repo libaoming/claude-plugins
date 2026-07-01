@@ -33,6 +33,7 @@
 
 ### L2 方法论层（开发纪律）
 - `features.json` 是**单一事实源**：status ∈ {pending, in_progress, failing, passing}，**verify 真跑通才能改 passing**
+- 📐 **技术方案先于开发（人工评估闸）**：开发任一 feature/功能前先写技术方案（问题定位 / 机制 / 选型权衡 / 实现路径 / 守约 / verify 口径 + 待定决策点），落 `docs/proposals/`（待评估），**交用户评估通过才进开发**。区别于下条 verifier 硬闸门（机器可验证）——这是**人工设计评审闸**，挡"方案没想清就开撸"；通过后转 ADR → 进切片
 - 🚦 **verifier 硬闸门**：feature 的 `verify` 字段为空 = **不准开工**（不能离开 pending）。每个目标必须带可衡量的成功信号——"没有验证机制的目标只是许愿"
 - 🧭 **三段式关联**：每个 feature 必须填 `related`/`affected`/`out_of_scope`，让 subagent 秒判"读哪些、不读哪些"，对治 context 膨胀（OpenSpec Related Context 实践）。`out_of_scope` 同时防 AI 联调复刻隐性功能
 - **线性切片**推进：每切片有 exit_criteria + git_tag，完成才进下一个
@@ -40,7 +41,11 @@
 - 三件套放 `{{MILESTONE}}/` 子目录，不放根目录
 
 ### L3 自动化钩子层
-确定性自动化放项目级 `.claude/settings.local.json`（local 不入 git）。**已内置**：Stop hook（每轮把用户请求增量追加到 `{{MILESTONE}}/PROGRESS.md` 的「增量流水」区，扛关电脑、不调 LLM）。其它按需加（session 启动注入 / 产物同步 / 提交前校验）。
+确定性自动化放项目级 `.claude/settings.local.json`（local 不入 git）。**已内置一对 Stop hook**：
+- `stop-progress-append.sh`（异步）——每轮把用户请求增量追加到 `{{MILESTONE}}/PROGRESS.md` 的「增量流水」区，扛关电脑、不调 LLM。
+- `stop-verify-claims.py`（同步）——**防造假收口闸**：末轮出现「已写/已落盘/File created + 文件名」或交付表 `path`（N 行）时逐一 `test -f`，有声称却磁盘不存在的文件就 exit 2 拒绝收口、把缺失清单喂回强制真核验。把 CLAUDE.md 的软规则「完成声明前先回读」在 Stop 边界机器化（缺 python3 自动降级 no-op，fail-open）。
+
+其它按需加（session 启动注入 / 产物同步 / 提交前校验）。
 
 ### L4 上下文隔离层 ⭐
 把"吃大量 context 的脏活"派给子 agent（**Agent 工具, `subagent_type=general-purpose`** 或下方项目专属子 agent）在独立 context 跑完，**只回结论**；主 context 保持干净，专注改代码决策 + 跟用户对话。
