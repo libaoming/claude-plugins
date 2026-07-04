@@ -31,7 +31,7 @@
 > - 这一节直接喂给 features.json 的 `verify` 字段 + fixture 设计（fixture 先于代码）
 
 ## 验收标准
-> [!TODO]（每条尽量可验证，对应上面的验证接缝）
+> [!TODO]（每条必须可机跑出 pass/fail——命令/脚本/exit code/截图对比，不是给人读的散文，且对应上面的验证接缝。Anthropic 第一原则："If you can't verify it, don't ship it"）
 
 ## Out of Scope（范围外）
 > [!TODO] 明确写出本期**不做**什么。这是 PRD 级全局边界，与每个 feature 的 `out_of_scope` 字段上下游呼应，从源头拦住范围蔓延、防 AI 联调复刻隐性功能。
