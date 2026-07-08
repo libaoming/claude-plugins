@@ -78,6 +78,21 @@
 - **开工闸门**：`verify` 字段为空的 feature 不准动（停在 pending），先定义可衡量的成功信号再开工
 - `features.json` status：单测通过只到 `in_progress`；**真实端到端 verify 通过才能改 `passing`**
 - verify 通过的细节写进 feature 的 `verify_notes`
+- 🚫 **反安慰性重跑**：同一条 verify 命令，在**代码没改**的情况下不重复跑——未改代码重跑不产生新信息，只制造「又绿了」的完成错觉。要么改了代码再跑，要么就依上一次输出下结论。
+- 📋 **恒定完成门**：per-feature 的 `verify` 之外，每个改动还要过 `DEFINITION_OF_DONE.md`（全项目不变的底线：运行时验证过行为 / 测试先红后绿 / 新模块真被链接住 / 无回归）。二者正交，缺一不算 done。
+
+## 收尾交付格式（Change Summaries 三段）
+
+非琐碎改动收尾时，向用户输出三段——把「克制、没越界翻修」变成必须书写的交付物（吸收自 addyosmani/agent-skills 的 git-workflow Change Summaries，是本仓「外科手术式改动 + Deviations 协议」的可执行化）：
+
+```
+CHANGES MADE            —— 改了什么（逐条，可追溯到本次需求）
+THINGS I DIDN'T TOUCH   —— 我刻意没碰什么、为什么（证明守了 scope discipline；
+                           看到但没动的问题在这里列，问用户要不要单开 task）
+POTENTIAL CONCERNS      —— 遗留顾虑 / 偏差 / 不确定项（接 Deviations 逐条核对）
+```
+
+> 「THINGS I DIDN'T TOUCH」段是重点：多数计划外翻修就死在「顺手改了但没说」，写出来 = 强制自己交代边界。
 
 ## 命名约定
 （按需补：git branch / docker tag / 代码注释 vs 用户可见文案）

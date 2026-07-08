@@ -64,6 +64,7 @@ description: 项目初始化的唯一入口（替代单独跑 /init）。用 har
 | `templates/M1_AGENTS.md` | `{dir}/{MILESTONE}/AGENTS.md` | L2 |
 | `templates/M1_PROGRESS.md` | `{dir}/{MILESTONE}/PROGRESS.md` | L2 |
 | `templates/fixtures_README.md` | `{dir}/fixtures/README.md` | L2 |
+| `templates/DEFINITION_OF_DONE.md` | `{dir}/DEFINITION_OF_DONE.md` | L2（恒定完成门：全项目每次改动都过的底线，与 per-feature `verify` 正交；CLAUDE.md verify 纪律段引用它） |
 | `templates/agent_ops.md` | `{dir}/.claude/agents/{PROJECT}-ops.md` | L4（项目专属只读运维子 agent；用户选要才建） |
 | `templates/settings.local.json` | `{dir}/.claude/settings.local.json` | L3（注册**一对 Stop hook**：①增量追加进度 ②防造假收口闸；local 不入 git） |
 | `templates/hooks/stop-progress-append.sh` | `{dir}/.claude/hooks/stop-progress-append.sh`（`chmod +x`） | L3（hook①脚本本体：每轮把用户请求追加到进度文件「增量流水」区，扛关电脑，随项目走不依赖全局路径） |
