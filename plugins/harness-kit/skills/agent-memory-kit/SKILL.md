@@ -28,6 +28,9 @@ Store（持久记忆 *.md）
 ### 第 0 步 · 确认目标
 1. **目标项目目录**（通常是当前项目；若由 `/harness-kit:harness-init` 的 1b 步触发，目录已知）
 2. 确认项目里有要挂记忆的 agent（Doer 是谁、trace 长什么样、store 打算放哪）
+3. 确认挂载接口两槽位（填进项目 config 与 MEMORY.md 接线段）：
+   - **steering「记什么」声明**：记什么、不记什么的入库标准（MCP 挂载时注入 `memory_write` 工具描述）
+   - **store 读写标志**：org=只读 / task=读写；对外挂载整体只读则 config 置 `"read_only": true`
 
 ### 第 1 步 · 复制模板树
 本 skill 目录下 `templates/` 即模板源，复制到 `{dir}/memory/`：
@@ -45,7 +48,9 @@ Store（持久记忆 *.md）
 
 ### 第 3 步 · 报告 + 指路
 - 输出落地的文件树 + 哪两块能直接跑、哪两块要业务接线
-- 冒烟命令：`python3 memory/retrieval/memory_search.py "测试关键词" --config <项目config> --top 5`
+- 冒烟命令（两段式：先 index 后正文）：
+  1. `python3 memory/retrieval/memory_search.py "测试关键词" --config <项目config> --top 5`（轻量 index 行）
+  2. `python3 memory/retrieval/memory_search.py "测试关键词" --config <项目config> --top 2 --full`（附正文）
 - 真实接线范例：https://github.com/libaoming/agent-memory-kit/tree/main/examples/recruit-voice-runtime
 
 ## 注意事项
