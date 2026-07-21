@@ -11,7 +11,7 @@
 
 > 🤖 **增量流水合并（每次启动先做）**：若 `{{MILESTONE}}/PROGRESS.md` 有「🤖 增量流水（待整理）」块（Stop hook 每轮自动追加的原始请求），**先合并进正式 Session Log、清空该块，再开工**。
 
-> 🧹 **本文件当代码对待（Anthropic best-practices）**：Claude 做错一次的事就写进来；定期 prune——每行自问「删掉会让 Claude 犯错吗」，不会就删（规则被噪声淹没=没有规则）；每条约束都是对模型当前能力的临时假设，模型升级后主动做减法。
+> 🧹 **本文件当代码对待（Anthropic best-practices）**：Claude 做错一次的事就写进来；定期 prune——每行自问「删掉会让 Claude 犯错吗」，不会就删（规则被噪声淹没=没有规则）；每条约束都是对模型当前能力的临时假设，模型升级后主动做减法——登记表与体检记录见 `STATUS.md`「能力假设登记」。
 
 ## 仓库结构
 ```
@@ -78,6 +78,7 @@
 - **开工闸门**：`verify` 字段为空的 feature 不准动（停在 pending），先定义可衡量的成功信号再开工
 - `features.json` status：单测通过只到 `in_progress`；**真实端到端 verify 通过才能改 `passing`**
 - verify 通过的细节写进 feature 的 `verify_notes`
+- 🎥 **影像凭据（UI / 交互类 verify）**：涉及界面、交互流程、跨页状态的 verify，除了 exit code 还要留一段**能被人看见的实跑录像**——用 `./record-evidence.sh start <feature-id> <url>` 开录、跑完交互后 `stop --gif` 落档，路径填进 feature 的 `verify.evidence`。理由：exit code 只证明「代码路径跑完了」，证明不了「用户看到的东西对不对」；录像让 verify 结论可复核、不用重跑就能被第三方判。纯 CLI / 纯数据类 verify 不要求。
 - 🚫 **反安慰性重跑**：同一条 verify 命令，在**代码没改**的情况下不重复跑——未改代码重跑不产生新信息，只制造「又绿了」的完成错觉。要么改了代码再跑，要么就依上一次输出下结论。
 - 📋 **恒定完成门**：per-feature 的 `verify` 之外，每个改动还要过 `DEFINITION_OF_DONE.md`（全项目不变的底线：运行时验证过行为 / 测试先红后绿 / 新模块真被链接住 / 无回归）。二者正交，缺一不算 done。
 
