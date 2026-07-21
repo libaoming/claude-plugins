@@ -64,6 +64,7 @@ description: 项目初始化的唯一入口（替代单独跑 /init）。用 har
 | `templates/M1_AGENTS.md` | `{dir}/{MILESTONE}/AGENTS.md` | L2 |
 | `templates/M1_PROGRESS.md` | `{dir}/{MILESTONE}/PROGRESS.md` | L2 |
 | `templates/fixtures_README.md` | `{dir}/fixtures/README.md` | L2 |
+| `templates/record-evidence.sh` | `{dir}/record-evidence.sh`（`chmod +x`） | L2（verify 影像凭据录制器：UI/交互类 verify 用 `agent-browser record` 录 WebM，`--gif` 经 ffmpeg 转 GIF，落 `{dir}/evidence/<feature-id>.*`，路径填进 feature 的 `verify.evidence`。**项目无 Web/UI 界面时不建**，问用户或看 PRD 判定） |
 | `templates/DEFINITION_OF_DONE.md` | `{dir}/DEFINITION_OF_DONE.md` | L2（恒定完成门：全项目每次改动都过的底线，与 per-feature `verify` 正交；CLAUDE.md verify 纪律段引用它） |
 | `templates/agent_ops.md` | `{dir}/.claude/agents/{PROJECT}-ops.md` | L4（项目专属只读运维子 agent；用户选要才建） |
 | `templates/settings.local.json` | `{dir}/.claude/settings.local.json` | L3（注册**一对 Stop hook**：①增量追加进度 ②防造假收口闸；local 不入 git） |
