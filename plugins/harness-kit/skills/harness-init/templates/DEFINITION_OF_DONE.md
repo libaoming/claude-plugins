@@ -25,6 +25,7 @@
 
 ## Ship-readiness（可交付）
 - [ ] `features.json` 里本 feature 的 status 依真实 verify 输出更新（单测过只到 `in_progress`，端到端 verify 过才 `passing`）
+- [ ] `warranty=longtail` 的 feature：抽检**真做过**，且样本数与日期写进 `verify_notes`——分档降低的是「判据能不能机器化」，**不降低「必须真跑过」**。没抽检就标 passing，与 🚩 第一条同罪
 - [ ] 收尾交付附「Change Summaries 三段」（改了什么 / 没碰什么 / 遗留顾虑）——见 CLAUDE.md
 
 ---

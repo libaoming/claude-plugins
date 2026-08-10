@@ -38,6 +38,7 @@
 - 📐 **技术方案先于开发（人工评估闸）**：开发任一 feature/功能前先写技术方案（问题定位 / 机制 / 选型权衡 / 实现路径 / 守约 / verify 口径 + 待定决策点），落 `docs/proposals/`（待评估），**交用户评估通过才进开发**。区别于下条 verifier 硬闸门（机器可验证）——这是**人工设计评审闸**，挡"方案没想清就开撸"；通过后转 ADR → 进切片
 - 🚦 **verifier 硬闸门**：feature 的 `verify` 字段为空 = **不准开工**（不能离开 pending）。每个目标必须带可衡量的成功信号——"没有验证机制的目标只是许愿"
 - 🧭 **三段式关联**：每个 feature 必须填 `related`/`affected`/`out_of_scope`，让 subagent 秒判"读哪些、不读哪些"，对治 context 膨胀（OpenSpec Related Context 实践）。`out_of_scope` 同时防 AI 联调复刻隐性功能
+- 🚧 **阻塞要进状态层，不能只写在叙述里**：feature 卡住时填 `blocked_on`（`kind` = human / external）。写在 BOARD/PROGRESS 里的阻塞脚本查不到、下个 session 会被略过——于是「在等人」这个状态在骨架里等于不存在。`kind=human` 的 `question` 必须可行动（「需要你定 A 还是 B」），**禁止「等用户确认」这类无法行动的表述**；`kind=external` 必须写清什么信号算解除。等人和等外部不许混为一种
 - **线性切片**推进：每切片有 exit_criteria + git_tag，完成才进下一个
 - **fixture 先于代码**：verify 引用的 fixture 不存在就先造，不许 mock、不许"等真数据"
 - 三件套放 `{{MILESTONE}}/` 子目录，不放根目录
@@ -79,6 +80,7 @@
 - `features.json` status：单测通过只到 `in_progress`；**真实端到端 verify 通过才能改 `passing`**
 - verify 通过的细节写进 feature 的 `verify_notes`
 - 🎥 **影像凭据（UI / 交互类 verify）**：涉及界面、交互流程、跨页状态的 verify，除了 exit code 还要留一段**能被人看见的实跑录像**——用 `./record-evidence.sh start <feature-id> <url>` 开录、跑完交互后 `stop --gif` 落档，路径填进 feature 的 `verify.evidence`。理由：exit code 只证明「代码路径跑完了」，证明不了「用户看到的东西对不对」；录像让 verify 结论可复核、不用重跑就能被第三方判。纯 CLI / 纯数据类 verify 不要求。
+- 🏷️ **保修档分级（`warranty`）**：每个 feature 标 `hero` 或 `longtail`。`hero`=会拿去 demo、写进对外说明的路径，**规则不变：机器可判 + verify 真绿才 passing**；`longtail`=输出维度天然允许方差、机器判不了的（语气、文风、审美、开放式建议），准许以 `verify.type=human_spotcheck` 结案。三条硬约束防它变成后门：①必须填 `warranty_reason`（为什么这条不能机器判），空理由不准标；②verify 字段仍不准为空——抽检也要写清抽检什么、样本数、判据；③抽检的日期与样本数写进 `verify_notes`。理由：主观类 feature 一刀切要求硬 verify，结果不是质量变高，而是要么卡死不发、要么**编一个假的机器判据糊弄闸门**。分档把「这条只承诺到抽检」变成写在骨架里的明示。⚠️ longtail 是例外不是默认——一个切片里占比过半 = 切片没拆对（可判的和不可判的混在了一个 feature 里）
 - 🚫 **反安慰性重跑**：同一条 verify 命令，在**代码没改**的情况下不重复跑——未改代码重跑不产生新信息，只制造「又绿了」的完成错觉。要么改了代码再跑，要么就依上一次输出下结论。
 - 📋 **恒定完成门**：per-feature 的 `verify` 之外，每个改动还要过 `DEFINITION_OF_DONE.md`（全项目不变的底线：运行时验证过行为 / 测试先红后绿 / 新模块真被链接住 / 无回归）。二者正交，缺一不算 done。
 

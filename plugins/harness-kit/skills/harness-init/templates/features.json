@@ -10,7 +10,9 @@
     "rule": "verify 必须真正通过才能改 passing；单测通过只到 in_progress",
     "verifier_gate": "verify 字段为空 = 不准开工（不能离开 pending）。每个目标必须带可衡量的成功信号（fixture/测试/基准/可复现 bug/E2E）——没有验证机制的目标只是许愿。",
     "context_fields": "每个 feature 必须填 related/affected/out_of_scope，让 subagent 秒判'读哪些、不读哪些'，对治 context 膨胀（来自 OpenSpec Related Context 实践）",
-    "evidence": "可选字段 verify.evidence：UI/交互类 feature 的实跑录像凭据路径（evidence/<id>.gif|webm），用 ./record-evidence.sh start|stop 录。exit code 只证明代码路径跑完了，证明不了用户看到的对不对——录像让 verify 结论不用重跑就能被第三方复核。纯 CLI/数据类 verify 不要求。"
+    "evidence": "可选字段 verify.evidence：UI/交互类 feature 的实跑录像凭据路径（evidence/<id>.gif|webm），用 ./record-evidence.sh start|stop 录。exit code 只证明代码路径跑完了，证明不了用户看到的对不对——录像让 verify 结论不用重跑就能被第三方复核。纯 CLI/数据类 verify 不要求。",
+    "warranty": "必填，`hero` | `longtail`，默认 `hero`。**质量承诺分档**，不是难度分档。`hero`=你会拿去 demo、写进 README/对外说明的路径，必须机器可判、verify 真绿才能 passing（默认规则不变）。`longtail`=输出维度天然允许方差、机器判不了的 feature（语气、文风、审美、开放式建议），准许以 `verify.type=human_spotcheck` 结案，但**三条硬约束**：①必须填 `warranty_reason` 说明「为什么这条不能机器判」，空理由 = 不准标 longtail；②verify 字段仍**不准为空**——抽检也要写清抽检什么、样本数、判据；③抽检结果连同日期与样本数写进 `verify_notes`。设立理由：主观类 feature 一刀切要求硬 verify，结果不是质量变高，而是要么卡死不发、要么编一个假的机器判据来糊弄闸门。分档让「这条我们只承诺到抽检」变成**写在骨架里的明示**，而不是藏在心里的默认。⚠️ 反向守卫：longtail 是例外不是默认，一个切片里 longtail 占比超过一半，说明切片本身没拆对（把可判的和不可判的混在了一个 feature 里）。",
+    "blocked_on": "可选字段，结构 {kind, question, since, unblock_signal}。feature 卡住时必须**结构化登记在这里**，不能只写进 BOARD/PROGRESS 的叙述——叙述层的阻塞脚本查不到、下个 session 的 agent 会直接略过，于是「在等人」这个状态实际上不存在于骨架里。kind=human：question 必须是可行动的具体问题（「需要你定 A 还是 B」），**禁止「等用户确认」「等 owner」这类无法行动的表述**；kind=external：必须写 unblock_signal（什么信号算解除，如「CI 转绿」「对方回邮件」）。等人和等外部不许混成一种。有 blocked_on 的 feature 不计入 in_progress，且必须浮到 STATUS.md 的一句话状态里。（借自 LoopX 的 user gate：「哪一步需要人判断」必须是具体 gate 而不是模糊的等待。）"
   },
   "slices": {
     "S1": {"name": "（待拆）", "exit_criteria": "（可验证的退出标准）", "git_tag": "{{PROJECT}}-s1"}
@@ -20,12 +22,15 @@
       "id": "F01_example",
       "slice": "S1",
       "status": "pending",
+      "warranty": "hero",
+      "warranty_reason": "",
       "verify": {"type": "fixture", "path": "fixtures/example/", "evidence": ""},
       "verify_notes": "",
       "related": {"specs": [], "code": [], "docs": []},
       "affected": "（这个 feature 影响哪些行为）",
       "out_of_scope": "（明确不碰什么，防 AI 复刻隐性功能）",
-      "blocking": []
+      "blocking": [],
+      "blocked_on": null
     }
   ]
 }

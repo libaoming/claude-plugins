@@ -5,6 +5,13 @@
 ## 一句话状态
 {{DATE}} 项目脚手架完成（4 层骨架就位），**文档先行进行中**：PRD/SPEC/architecture 待填，未开始写代码。
 
+## 🚧 当前阻塞（有就必须写在这，没有就写「无」）
+无
+<!-- features.json 里任何带 blocked_on 的 feature 都要浮到这里，一行一条：
+     [F0X] human — 需要你定 A 还是 B（2026-08-03 起）
+     [F0Y] external — 等 CI 转绿（解除信号：main 分支 workflow 通过）
+     人打开项目第一眼就该看见「卡在哪、卡的是我还是外部」，不用去翻 features.json。-->
+
 ## 下次入口
 1. 读本文件 → 读 `{{MILESTONE}}/PROGRESS.md`
 2. 跑 `bash {{MILESTONE}}/init.sh` 确认环境
