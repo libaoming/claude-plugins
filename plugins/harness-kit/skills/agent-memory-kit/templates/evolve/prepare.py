@@ -21,7 +21,7 @@ amk_config.json 字段：
     results_tsv       记账文件
     agent_model/judge_model/skill_token_limit/role_labels  见默认值
 
-输出末尾固定 karpathy trailer：avg_score / pass_rate / n_cases / runs / skill_chars / skill_over_limit / total_seconds
+输出末尾固定 karpathy trailer：avg_score / pass_rate / n_cases / runs / skill_chars / skill_over_limit / total_seconds / per_case_dump
 """
 from __future__ import annotations
 
@@ -216,6 +216,7 @@ def evaluate(cfg, eval_set: str, runs: int = 1) -> int:
     t0 = time.time()
     run_avgs: list[float] = []
     run_pass_rates: list[float] = []
+    per_case: list[dict] = []
 
     for run_idx in range(1, runs + 1):
         if runs > 1:
@@ -230,6 +231,8 @@ def evaluate(cfg, eval_set: str, runs: int = 1) -> int:
                 verdict = {"score": 0, "pass": False, "reasons": f"crash: {type(e).__name__}: {e}"}
                 response = ""
             scores.append(verdict)
+            per_case.append({"run": run_idx, "case_id": case_id,
+                             "score": verdict["score"], "pass": verdict["pass"]})
             mark = "✓" if verdict["pass"] else "✗"
             snippet = (response or "").replace("\n", " ")[:60]
             print(f"  [{i:>2}/{len(cases)}] {mark} score={verdict['score']:>2} "
@@ -258,22 +261,46 @@ def evaluate(cfg, eval_set: str, runs: int = 1) -> int:
     if runs > 1:
         print(f"score_spread:     {max(run_avgs) - min(run_avgs):.4f}")
 
+    _dump_per_case(cfg, eval_set, per_case)
     _append_tsv(cfg, eval_set, avg, pass_rate, runs, skill_tokens, elapsed)
     return 0
 
 
+def _git_commit(cfg) -> str:
+    """当前 commit 短 hash，取不到时退回 uncommitted。TSV 与逐 case 存档共用。"""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True,
+                             cwd=str(cfg["project_root"]), timeout=5).stdout.strip()
+        return out or "unknown"
+    except Exception:  # noqa: BLE001
+        return "uncommitted"
+
+
+def _dump_per_case(cfg, eval_set, per_case) -> None:
+    """逐 case 分数落盘 —— 配对检验（paired.py）的原料。
+
+    只留聚合分（avg_score / pass_rate）时，两轮之间只能比总分；而 fixture 通常只有
+    10 条左右，总分本身的噪声足以淹没大多数真实改动（10 条、pass_rate 0.6 时
+    二项标准误约 15pp）。逐 case 留档后可做配对检验：比的是同一条 fixture 上的
+    分差，方差远小于两个总分之差，且不需要重跑、不额外花钱。
+    """
+    if not per_case:
+        return
+    out_dir = cfg["project_root"] / "runs"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"{_git_commit(cfg)}-{eval_set}.jsonl"
+    with path.open("w", encoding="utf-8") as f:
+        for row in per_case:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    print(f"per_case_dump:    {path}")
+
+
 def _append_tsv(cfg, eval_set, avg, pass_rate, runs, skill_tokens, elapsed) -> None:
     import datetime
-    import subprocess as _sp
     tsv = cfg["project_root"] / cfg["results_tsv"]
     write_header = not tsv.exists()
-    commit = "uncommitted"
-    try:
-        commit = _sp.run(["git", "rev-parse", "--short", "HEAD"],
-                         capture_output=True, text=True, cwd=str(cfg["project_root"]),
-                         timeout=5).stdout.strip() or "unknown"
-    except Exception:
-        pass
+    commit = _git_commit(cfg)
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     with tsv.open("a", encoding="utf-8") as f:
         if write_header:

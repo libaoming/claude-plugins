@@ -1,7 +1,7 @@
 {
   "name": "harness-kit",
   "displayName": "Harness Kit",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Engineering harness for long-running agent projects: project scaffolding with 4-layer defense (persistence / methodology / hooks / context isolation), runtime memory kit for agents you build, and prompt auto-evolution loops.",
   "author": {
     "name": "baomingli (橙研所)",
