@@ -35,6 +35,26 @@ description: 给任意 prompt/skill/agent 人格文件挂「自动进化环」�
 
 `results.tsv`、`run.log` 与 `runs/*.jsonl`（逐 case 存档）由运行时生成，提醒用户加进 `.gitignore`。
 
+模板里还带一个 `harvest.py`（附 `test_harvest.py`），负责第 0 步第 4 条「fixture 从哪来」里的线上来源。它不在上表的必需文件里，项目有线上 trace 时再启用。
+
+### 第 1.5 步 · 线上失败回流成 fixture（有线上 trace 时启用）
+fixture 不能只靠开工时手写的那 15 个。线上质检（critic 型 Reflector 或人工标注）判为失败的对话，才是最该进评测集的 case。`harvest.py` 把这条回流做成两道人工闸：
+
+```bash
+python3 harvest.py --config amk_config.json --traces failures.jsonl   # 收进 eval/candidates.jsonl
+python3 harvest.py --config amk_config.json --list                    # 看哪些待改写、哪些可晋升
+# 人把候选的 expected 从 TODO 草稿改写成「应该怎么做」
+python3 harvest.py --config amk_config.json --promote ID --to train_set|held_out
+python3 harvest.py --config amk_config.json --reject ID    # 不值得收的，丢进 eval/rejected.jsonl
+```
+
+- **收**：只收判为失败的 trace（`verdict.pass=false`，或没有 pass 时 `score<7`）。没有判定的不猜。去掉最后那条坏回复，留在 `source.bad_response` 里备查。与 train_set、held_out、candidates、rejected 里已有的对话去重，重跑不会重复收。
+- **改写**：候选的 `expected` 是 `TODO(人写)：失败原因=…`。失败原因是「错在哪」，fixture 需要的是「该怎么做」，这一步翻译必须由人来做。
+- **晋升**：`expected` 为空、全空白或以 TODO 开头（不分大小写）时，promote 会拒绝（`REFUSED`）。晋升去 train_set 还是 held_out 由人决定；建议大约每 3 条放 1 条进 held_out，不然线上的坑全进训练集，held_out 就测不出过拟合。
+- **维度分流照样适用**：失败原因落在「允许方差」维度上的候选（比如「语气不够自然」），用 `--reject` 丢掉，不要晋升，也不要手动删行（手动删掉的下次会被重新收回来）。
+- **和配对检验的关系**：`paired.py` 只比两轮都有的 case，新晋升的 case 要等前后两轮都跑过才会参与比较；在那之前它不影响 z。但集合变了，avg_score 就不能跨变更点比，TSV 上要标出断点（见 program.md）。
+- 进化 agent 不许碰 `candidates.jsonl`，这条与「不许改 `eval/*.jsonl`」是同一条。收和晋升都由人来跑；这对应「agent 可以写 eval，merge 由人负责」。
+
 ### 第 2 步 · 跑基线
 ```bash
 python3 prepare.py --config amk_config.json --runs 3

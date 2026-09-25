@@ -5,7 +5,8 @@
 ## 唯一可变 / 绝对只读
 
 - ✅ **只能改**：`amk_config.json` 里 `skill_files` 列的那几个 prompt 文件（通常是 persona/workflow/constraints 三件套）。
-- ❌ **绝对不许改**：`prepare.py`、`judge.md`、`eval/*.jsonl`、`amk_config.json` 本身。改了 = 作弊，分数无意义。
+- ❌ **绝对不许改**：`prepare.py`、`judge.md`、`eval/*.jsonl`（含 `eval/candidates.jsonl`）、`amk_config.json` 本身。改了 = 作弊，分数无意义。
+- ❌ **不许跑** `harvest.py --promote` 或 `--reject`：候选进不进评测集由人决定。
 
 ## 循环（NEVER STOP）
 
@@ -44,3 +45,7 @@ while True:
 这套 evolve 是记忆四角色里 **Reflector 的「进化」一半**——它把「评估信号」回注成「更好的 prompt」。
 评估维度（judge.md）若来自一个 critic 型 Reflector（如 miaomiao-grader 的质检 rubric），
 则「质检」与「进化」共用一套 rubric：线上质检发现的坑，直接成为进化的方向。
+
+这些坑进评测集的路径是 `harvest.py`：失败 trace 先进 `eval/candidates.jsonl`，人把 `expected` 改写成「应该怎么做」，再 promote 进 train_set 或 held_out。所以评测集会在你跑的过程中变大：
+- `paired.py` 只比两轮都有的 case，新 case 在前后两轮都跑过之前不参与 z，配对检验照常可用。
+- avg_score 不能跨集合变更点比较。`results.tsv` 没有 n_cases 列，所以晋升后的第一轮，要在 note 列写上「集合变更：+ID」，否则从 TSV 上看不出断点。
